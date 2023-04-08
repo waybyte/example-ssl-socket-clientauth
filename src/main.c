@@ -28,72 +28,115 @@
 int socket_id;
 
 /**
+ * Root Certificate for peer validation
+ */
+const char root_ca[] = 
+"-----BEGIN CERTIFICATE-----\n"
+"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\n"
+"-----END CERTIFICATE-----\n";
+
+/*
+ * Please update Client certificate and privatekey,
+ * visit tcpbin.com for more information
+ */
+
+/**
  * SSL Client certificate
  */
-const char client_cert[] = "-----BEGIN CERTIFICATE-----\n\
-MIIDZTCCAk2gAwIBAgIBKjANBgkqhkiG9w0BAQsFADCBizELMAkGA1UEBhMCVVMx\n\
-CzAJBgNVBAgMAkNBMRYwFAYDVQQHDA1TYW4gRnJhbmNpc2NvMQ8wDQYDVQQKDAZ0\n\
-Y3BiaW4xDDAKBgNVBAsMA29wczETMBEGA1UEAwwKdGNwYmluLmNvbTEjMCEGCSqG\n\
-SIb3DQEJARYUaGFycnliYWdkaUBnbWFpbC5jb20wHhcNMjAwNjA2MTIwMjMwWhcN\n\
-MjAwNjA3MTIwMjMwWjAcMRowGAYDVQQDDBF0Y3BiaW4uY29tLWNsaWVudDCCASIw\n\
-DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAL6jI3SzOhkCh28/MLNgZH+lQ9+E\n\
-/dkS/vnau5rWoVo3IJNsZ81FRLwPJzubiF/ZeKk0C5XYM/fuaIl5qHb4z7ImuTKi\n\
-6DRrF+lhBXHi7MF+aHyUiPhr4ey8DQ/2QbcMLcm0nxDABVvx3MK18j3u9snDKWxI\n\
-wX+pa7sVAoeo5lvBlTBD6R/lq9iDlGM5l+Gg/AX/2ze11pbDCZNO42A++VkjCsqb\n\
-vZ0ezN7X3aFBRXqoty6ngMYpjUNxoQ4OElNOoPozk9VDZvcTRF568zZ0FcP3AtCx\n\
-iOZLSQk6W48SfCbH8wUPgIWsSKyjtFJL0qTkXeFLFtQMQaXm39c/qJackgMCAwEA\n\
-AaNCMEAwHQYDVR0OBBYEFJifGeElqlMLAhmnMBBzy5xDzlkRMB8GA1UdIwQYMBaA\n\
-FOLuMowBSAZfV5v82LmlaIIOvU/DMA0GCSqGSIb3DQEBCwUAA4IBAQBIG4EbqwPu\n\
-EQVoTZdGUB7MqLEuwMEIQw/vxc3zPH+qNoaZBxXIr/+90UyYPYsDbGgYngLUeuW7\n\
-YPfrun603+mAjgLCzCc/qRYPd0o5sfTXYSla/Ho4chF8OF812gxVTGs0+VLfWuig\n\
-Y8H30A4VXl8vPi6OCmV9vVmnh2K4uhmxp9h7zqHy7HjRnOymipvu7+TxG9BmAJPR\n\
-AafFth2mSiuNZRGBqzY1MfjCUt18YQtBYUduhRzWe3+niwkhMZP6sbq/Q2cRwoSh\n\
-yKi9KDo/SL6b2cmG5ECu2FLcqhOIZOoAB4P0UVlyZqefefMnXbl8mP7siI+uVHWT\n\
-WwOvwPEtnDbF\n\
------END CERTIFICATE-----";
+const char client_cert[] = 
+"-----BEGIN CERTIFICATE-----\n"
+"MIIDZTCCAk2gAwIBAgIBKjANBgkqhkiG9w0BAQsFADCBizELMAkGA1UEBhMCVVMx\n"
+"CzAJBgNVBAgMAkNBMRYwFAYDVQQHDA1TYW4gRnJhbmNpc2NvMQ8wDQYDVQQKDAZ0\n"
+"Y3BiaW4xDDAKBgNVBAsMA29wczETMBEGA1UEAwwKdGNwYmluLmNvbTEjMCEGCSqG\n"
+"SIb3DQEJARYUaGFycnliYWdkaUBnbWFpbC5jb20wHhcNMjMwMzMxMTYzMzIxWhcN\n"
+"MjMwNDAxMTYzMzIxWjAcMRowGAYDVQQDDBF0Y3BiaW4uY29tLWNsaWVudDCCASIw\n"
+"DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOcuv6RWF4Yv0Hm7lcNcJ2oy6GI0\n"
+"RhJqNOWuOuSVmI+KyLHylJWZBEmFN5apYB0Ddf7MsZUkE/nkiA3odfsbLKniBi1g\n"
+"PFsuzFpK7CoEq1Rl2CoNJKoRxKDYIXWjK26ds9msmKpS+ZK8cO5NfHYjcTXqoHGb\n"
+"5XX7yfO5KydAFcVURSO5ucf1gjKVGocwjbm+5gA8P/sz7QOgXVjXrSZF7XFPJS6a\n"
+"zQW51B/lxxp2uZE6oE6JO0uFiMpqbCV0RsErwz+ibaEEPq+TsIo4P6x97Zt81Jcr\n"
+"PmDorlKuQrRSvQ51n5FyithIfUOYICF+BOJwFmBoHv6pMG8UwIc6Fb2vr9ECAwEA\n"
+"AaNCMEAwHQYDVR0OBBYEFH6MlHFNtl4sxBzM5TMr1MTX8taoMB8GA1UdIwQYMBaA\n"
+"FOLuMowBSAZfV5v82LmlaIIOvU/DMA0GCSqGSIb3DQEBCwUAA4IBAQCfOSRZPv8U\n"
+"ZF35C0ijfC19hV89xgsRPoDEndQ9CbQMO6PWnGibteKPkLBdHl7wkLriv89h9pj1\n"
+"icxCUlzZ56scRb3/kIImZUQYY7y1oavtvSdD7/uTi2l3FxPmQj2QoGkP5QwZDO4e\n"
+"5IxiWGJ0tAo2qJIg9rXZQ7gtGDJZFUqc1Zn9HoCYoyVU37E83LGeFf6NVVkkYEkX\n"
+"7p1LUkMfTUbmYNVpVVASsOk9vaGme3EswERIeudslbFkZbeXqXPAr3LcJtF92QcM\n"
+"ohiaTx3WXCzskzXySAgKls/mm/FpqvWpkp2Q/3DXcQrxlg3Bw0f6Edp7VrQrJVFg\n"
+"B5eLvVMZQzEd\n"
+"-----END CERTIFICATE-----\n";
 
 /**
  * SSL Client private key
  */
-const char client_key[] = "-----BEGIN PRIVATE KEY-----\n\
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC+oyN0szoZAodv\n\
-PzCzYGR/pUPfhP3ZEv752rua1qFaNyCTbGfNRUS8Dyc7m4hf2XipNAuV2DP37miJ\n\
-eah2+M+yJrkyoug0axfpYQVx4uzBfmh8lIj4a+HsvA0P9kG3DC3JtJ8QwAVb8dzC\n\
-tfI97vbJwylsSMF/qWu7FQKHqOZbwZUwQ+kf5avYg5RjOZfhoPwF/9s3tdaWwwmT\n\
-TuNgPvlZIwrKm72dHsze192hQUV6qLcup4DGKY1DcaEODhJTTqD6M5PVQ2b3E0Re\n\
-evM2dBXD9wLQsYjmS0kJOluPEnwmx/MFD4CFrEiso7RSS9Kk5F3hSxbUDEGl5t/X\n\
-P6iWnJIDAgMBAAECggEAKx+qQJbeeJPa4S5xLNKMSVewL9rctYMXjJuPPqp4m3jG\n\
-9LJcFNIrh0MCQ/id89i088mjKUVcFCSpHxgXJLqJ+SnLUQoK7vie0xswaR/FIMwg\n\
-hLXw+gkldTDg35B8MxUdMniaVuapD7B5mM4huyLYTrHIKAeZRfCkPxC0ns11NqIB\n\
-9Gpx1yJuHFu7WkEtrbqhKfaYeymPbm2G53/BUJNJgMYwxxYG3NJVhb4Q8SMjZ09g\n\
-fGP24svwVFBGLykvL/yQSTEuK5/rE8wF+TU/G4hA9bQci+fs1XHFXDnob9wg1Iiv\n\
-0dfD40JW4gb1kCp1VtyV4EFQgeo36KiQTlKJi+qSqQKBgQD8IAXE45n9SExumBpk\n\
-ZOAAjWxSSJMCwxO+31DSCXhwetI8WGVbxbkuALnupnINYTFpe1ubwniCm/ihExmy\n\
-rEkLESjQ18oGRMJWVT9yxk8m0Hv/wPo1xm+dIPpGEY8DKDSDnkCOHxvKeXlGjlbR\n\
-YOG+Vmh+PEmzuvH2BBOAVRFu7QKBgQDBkTG4qZBNGw3LowQgN7pRk7EBAOvnkIea\n\
-mi63G3dkuaS4UiYd0ymxuR5RoQfz7zb3S3ArjxDO+J9YBeECkwMp0OkQt6PqDVoa\n\
-aUG2eU6yTmDzNX2aEqM1RnXqHePizVXnGFlj3nzW4fTaU/kN4hWAdm+3HnBYBq5f\n\
-qiD8rkL2rwKBgQCpN4znsqLd3jJ+X9QG4bV+aWz0ZQVWazvLdfK2peiSBb0pB2Mw\n\
-DyrUd2RTip8t37fcRhEcH4/miWx8H2e2BfAYX3H3iX1sa6XLb/ffvr3NHUy8QPcu\n\
-NHshCMsxUAOeaNOmKwbE3Jg4cwM0mcAnU1DwAOqtHyWQXb6cEexMy8uhmQKBgCOL\n\
-B7hC2o5uA1B7NIy97uZ/2ia3BppUvbGz0hQpZPkH5ak63Gjpl2Rc+6Y9jXpLWKp8\n\
-HbLB6HI40PmWysRwPkp1Y/Z/4gdeQEdNQJXDHKI9JixCjDe4aGOl9ozwxCGnVrjC\n\
-jdd6yS2j/BQDC15zP0OBe+4CFtrzDx3d3YTIct9dAoGAS5UgYs13MODq/xNIJcLD\n\
-qiyEJBC0SZ9g+K+W1pUR7dYZI2UcLSwEFd/QE4iBgqdjQ5poczsnZ4jIVH3f4Ji8\n\
-kr9pQivTnQWOmTqtWqdNSvt2xlkxlf5LOZUnfT4hDldAnLzOXiUI3k3BTQygt91f\n\
-GUgZ3N0O3bwWSyhuAATc+1U=\n\
------END PRIVATE KEY-----";
+const char client_key[] = 
+"-----BEGIN PRIVATE KEY-----\n"
+"MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDnLr+kVheGL9B5\n"
+"u5XDXCdqMuhiNEYSajTlrjrklZiPisix8pSVmQRJhTeWqWAdA3X+zLGVJBP55IgN\n"
+"6HX7Gyyp4gYtYDxbLsxaSuwqBKtUZdgqDSSqEcSg2CF1oytunbPZrJiqUvmSvHDu\n"
+"TXx2I3E16qBxm+V1+8nzuSsnQBXFVEUjubnH9YIylRqHMI25vuYAPD/7M+0DoF1Y\n"
+"160mRe1xTyUums0FudQf5ccadrmROqBOiTtLhYjKamwldEbBK8M/om2hBD6vk7CK\n"
+"OD+sfe2bfNSXKz5g6K5SrkK0Ur0OdZ+RcorYSH1DmCAhfgTicBZgaB7+qTBvFMCH\n"
+"OhW9r6/RAgMBAAECggEAN7aqdL5SuQH46f1tIEGrNgrCujgC0xlJWjjc9I2g0KcP\n"
+"quLdMBhKUjWKqgJzqUpWO2u1OE4Tiluq9j8Zf8SSxPY1quXQZeEnWnNH6vBpIdPR\n"
+"foDgXyQdEO5FUgZaxzO2TjUsLZAFmXlUdfmyjv4HoIjE1dxONlrR1qy/W5w0IvOw\n"
+"w3aA5wlSO4MJnQqkq3KuycH6qeywD2n6GhNDIgcBp5XPd8wQoxe8/2dZNyBxHf4G\n"
+"6mHsnIU+NhvxPdKR3uNxBxf+qRPvcIdnQKXx2CjWSTr6ykSmNhitgoyG/B5FKK9P\n"
+"6qe64LKMZP0sovD6RPLbMZ0wu7O6bd1RNk5xx+cA4QKBgQD9UdkTDdIikXLWUNrX\n"
+"s7xEf2HOTzuL67WO1Q16jasVTJyW+pUXsiaisT8qjycBh/UiuC/XrTNPvHAn4xMs\n"
+"Ch/l3D7MHgkP47Mpz/xP1WdiBWms/XBXAS59rdpc4ZtL966cOgztrGZ6G7CMhF5n\n"
+"HJTgpHs3IZj3lnNkSwBK5Wsw1QKBgQDpoPBuv+/wZFSoQEAX49pVDle6+BB3M08t\n"
+"wZZwnz+Hm+ejWH/ZlS6A1hbMSYrHhlGyfF6HAtFBM60wS0PFh+wxwxGWJe8ElNni\n"
+"XtzQ+icSJk/GXE7p7D4BZFEJT0a0sjYIZicOVWLrJGDKjzC2intZc03kky07xTdn\n"
+"IjM+HYfhDQKBgEPg37LsXCdpJAVriwiLn+IW5AVdU85tbawFSORS+8nsSnVmVfcQ\n"
+"hKvJpOxpiYEuhjA0fJVlUr+F9eOqRCPj3qJAPw+A6Nq6H/MPSUO3Ikmwu51gF+8o\n"
+"YOXKZR3IUk2r47z3DSnOrXMA4nD0szsb/ISpbl7agNuvE+KG+mAXU361AoGASsBE\n"
+"zZq6AbeIYsEUANDVpctOBLOkSQ9wsRo0sVoysIgQqHIDjjGuTGizqK+LKOXwM+SZ\n"
+"NiePnoYTTtV2HLituQpKETmX7WZXBJgHnRG8+JCri7MzSKNe/4ECcLEd1WkD4tIU\n"
+"gwCNAuGD2qvQEUfjya4b6RuyKGKkpGoL7T7zn+0CgYBF2LdNRktvH5XVlH4vGPUx\n"
+"IXp049jWAwjay7/u4iwbXqLa91hnBvddQ0QWNcoPBccKA9rn7XsStA1uCds8adZ6\n"
+"WLyyXChBcVJjuNVSLWpWwI3A+AzKn7P7k+Yh2Tki/ijUGk0mDOBrExUC9z+bxUwG\n"
+"j4t1p7Jp+pe0MgQtwHWsVg==\n"
+"-----END PRIVATE KEY-----\n";
 
 /**
  * SSl Client certificate and privatekey
  */
 const struct ssl_certs_t certs = {
-	.cert_type = SSL_TYPE_BUFFER,
+	.rootca = root_ca,
+	.rootca_len = sizeof(root_ca),
 	.cert = client_cert,
-	.cert_len = sizeof(client_cert) - 1,
-	.pkey_type = SSL_TYPE_BUFFER,
+	.cert_len = sizeof(client_cert),
 	.privatekey = client_key,
-	.privatekey_len = sizeof(client_key) - 1,
+	.privatekey_len = sizeof(client_key),
 };
 
 /**
@@ -187,33 +230,16 @@ static void urc_callback(unsigned int param1, unsigned int param2)
 	}
 }
 
-static int status_callback(int id, int event)
-{
-	switch (event)
-	{
-	case SOCK_EV_CONNECTED:
-		printf("Socket connected\n");
-		break;
-	case SOCK_EV_DISCONNECTED:
-		printf("Socket disconnected\n");
-		break;
-	default:
-		printf("Socket Event: %d\n", event);
-		break;
-	}
-	return 0;
-}
-
 static void socket_init(void)
 {
 	struct ssl_sockopt_t sockopt;
 
-	socket_id = ssl_socket_request(SSL_VER_DEFAULT, (struct ssl_certs_t *)&certs);
+	socket_id = ssl_socket_request((struct ssl_certs_t *)&certs);
 
 	strcpy(sockopt.server_ip, SERVER_IP);
 	sockopt.port = SERVER_PORT;
 	sockopt.arg = NULL;
-	sockopt.status_callback = status_callback;
+	sockopt.timeout = 30; /* handshake timeout 30s */
 	ssl_socket_setopt(socket_id, &sockopt);
 }
 
@@ -233,8 +259,9 @@ static void socket_task(void *arg)
 	while (1)
 	{
 		/* Wait for GPRS */
-		if (network_getstatus(0) != NET_STATE_GPRS)
+		if (!network_isready())
 		{
+			printf("Waiting for data connection...\n");
 			sleep(1);
 			continue;
 		}
@@ -275,7 +302,11 @@ int main(void)
 	/*
 	 * Initialize library and Setup STDIO
 	 */
+#ifdef PLATFORM_EC200U
+	logicrom_init("/dev/ttyUSB0", urc_callback);
+#else
 	logicrom_init("/dev/ttyS0", urc_callback);
+#endif
 	/* Start GPRS service */
 	network_gprsenable(TRUE);
 
