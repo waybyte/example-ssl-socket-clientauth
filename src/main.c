@@ -259,7 +259,7 @@ static void socket_task(void *arg)
 	while (1)
 	{
 		/* Wait for GPRS */
-		if (!network_isready())
+		if (!network_isdataready())
 		{
 			printf("Waiting for data connection...\n");
 			sleep(1);
@@ -308,11 +308,11 @@ int main(void)
 	logicrom_init("/dev/ttyS0", urc_callback);
 #endif
 	/* Start GPRS service */
-	network_gprsenable(TRUE);
+	network_dataenable(TRUE);
 
 	printf("Waiting for network!\n");
 	/* wait for network GPRS ready */
-	while (!network_isgprsenable()) {
+	while (!network_isdataready()) {
 		sleep(1);
 		if (++timeout > 120) {
 			printf("Data connection fail!, rebooting...\n");
