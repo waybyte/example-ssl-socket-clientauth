@@ -1,4 +1,4 @@
-# Logicrom SDK - SSL socket example with client authentication
+# Logicrom OpenCPU SDK - SSL socket example with client authentication
 
 ## How to build
 
